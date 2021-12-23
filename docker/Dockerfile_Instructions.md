@@ -33,6 +33,8 @@ DockerFile
 
 - `RUN` - The RUN instruction will execute any commands in a new layer on top of the current image and commit the results. The resulting committed image will be used for the next step in the Dockerfile.
 
+
+
 - `CMD` - The main purpose of a CMD is to provide defaults for an executing container. 
 
    `Note:` There can only be one CMD instruction in a Dockerfile. If you list more than one CMD then only the last CMD will take effect.
@@ -76,4 +78,39 @@ DockerFile
 
 - `SHELL` - The SHELL instruction allows the default shell used for the shell form of commands to be overridden. 
 
+## Diff between CMD and Entrypoint
+ 
+ 
+I'll add my answer as an example1 that might help you better understand the difference.
 
+Let's suppose we want to create an image that will always run a sleep command when it starts. We'll create our own image and specify a new command:
+
+FROM ubuntu
+CMD sleep 10
+Building the image:
+
+docker build -t custom_sleep .
+docker run custom_sleep
+# sleeps for 10 seconds and exits
+What if we want to change the number of seconds? We would have to change the Dockerfile since the value is hardcoded there, or override the command by providing a different one:
+
+docker run custom_sleep sleep 20
+While this works, it's not a good solution, as we have a redundant "sleep" command. Why redundant? Because the container's only purpose is to sleep, so having to specify the sleep command explicitly is a bit awkward.
+
+Now let's try using the ENTRYPOINT instruction:
+
+FROM ubuntu
+ENTRYPOINT sleep
+This instruction specifies the program that will be run when the container starts.
+
+Now we can run:
+
+docker run custom_sleep 20
+What about a default value? Well, you guessed it right:
+
+FROM ubuntu
+ENTRYPOINT ["sleep"]
+CMD ["10"]
+The ENTRYPOINT is the program that will be run, and the value passed to the container will be appended to it.
+
+The ENTRYPOINT can be overridden by specifying an --entrypoint flag, followed by the new entry point you want to use.
