@@ -84,9 +84,10 @@ DockerFile
 I'll add my answer as an example1 that might help you better understand the difference.
 
 Let's suppose we want to create an image that will always run a sleep command when it starts. We'll create our own image and specify a new command:
-
+```
 FROM ubuntu
 CMD sleep 10
+```
 Building the image:
 
 docker build -t custom_sleep .
@@ -98,19 +99,21 @@ docker run custom_sleep sleep 20
 While this works, it's not a good solution, as we have a redundant "sleep" command. Why redundant? Because the container's only purpose is to sleep, so having to specify the sleep command explicitly is a bit awkward.
 
 Now let's try using the ENTRYPOINT instruction:
-
+```
 FROM ubuntu
 ENTRYPOINT sleep
+```
 This instruction specifies the program that will be run when the container starts.
 
 Now we can run:
 
 docker run custom_sleep 20
 What about a default value? Well, you guessed it right:
-
+```
 FROM ubuntu
 ENTRYPOINT ["sleep"]
 CMD ["10"]
+```
 The ENTRYPOINT is the program that will be run, and the value passed to the container will be appended to it.
 
 The ENTRYPOINT can be overridden by specifying an --entrypoint flag, followed by the new entry point you want to use.
